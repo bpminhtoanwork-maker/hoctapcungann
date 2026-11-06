@@ -1,0 +1,20 @@
+/* Hiệu ứng khung kính mờ (Glassmorphism) để nhìn xuyên thấu background */
+.glass-panel {
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.tab-active {
+  border-bottom: 2px solid #818cf8;
+  color: #818cf8;
+  font-weight: 700;
+}
+
+#quiz-container {
+  transition: all 0.3s ease-in-out;
+}
+
+.hsk-filter-btn {
+  transition: all 0.2s ease;
+}

@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Học Cùng Ann - HSK Multi-Language</title>
+  <!-- Tailwind CSS & FontAwesome -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body id="app-body" class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col bg-cover bg-center bg-fixed transition-all duration-500">
+
+  <!-- Header & Navigation (3 Tabs) -->
+  <header class="bg-slate-900/80 backdrop-blur-md shadow-lg sticky top-0 z-10 border-b border-slate-800">
+    <div class="max-w-4xl mx-auto px-4 flex justify-between items-center h-16">
+      <h1 class="text-xl font-bold text-indigo-400 flex items-center">
+        <i class="fa-solid fa-layer-group mr-2"></i>PolyLang HSK
+      </h1>
+      <nav class="flex space-x-2 md:space-x-4 items-center">
+        <button id="btn-tab-input" onclick="switchTab('input')" class="py-4 px-3 tab-active transition-colors text-xs md:text-sm font-semibold">
+          <i class="fa-solid fa-pen-to-square mr-1"></i> Nhập dữ liệu
+        </button>
+        <button id="btn-tab-quiz" onclick="switchTab('quiz')" class="py-4 px-3 text-slate-400 hover:text-indigo-400 transition-colors text-xs md:text-sm font-semibold">
+          <i class="fa-solid fa-clone mr-1"></i> Flashcard
+        </button>
+        <button id="btn-tab-background" onclick="switchTab('background')" class="py-4 px-3 text-slate-400 hover:text-indigo-400 transition-colors text-xs md:text-sm font-semibold">
+          <i class="fa-solid fa-image mr-1"></i> Đổi nền
+        </button>
+        <button onclick="setGroqKey()" class="text-slate-400 hover:text-indigo-400 px-2 py-1 text-xs md:text-sm font-semibold transition-colors" title="Cài đặt Groq API Key">
+          <i class="fa-solid fa-key"></i>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="max-w-4xl mx-auto px-4 py-6 flex-1 w-full space-y-6">
+
+    <!-- ================= TAB 1: NHẬP VÀ QUẢN LÝ DỮ LIỆU ================= -->
+    <section id="tab-input" class="space-y-6">
+      
+      <!-- Form nhập từ thủ công & Tích hợp Groq AI -->
+      <div class="glass-panel p-6 rounded-2xl shadow-xl border border-white/10">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-lg font-bold text-slate-100 flex items-center">
+            <i class="fa-solid fa-plus-circle text-indigo-400 mr-2"></i> Thêm từ vựng mới
+          </h2>
+          <span class="text-xs text-emerald-400"><i class="fa-solid fa-circle-check mr-1"></i>Sẵn sàng Groq AI</span>
+        </div>
+
+        <form id="vocab-form" onsubmit="addVocabulary(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium text-slate-300 mb-1">Tiếng Việt (*)</label>
+            <div class="flex gap-2">
+              <input type="text" id="vi" required placeholder="Ví dụ: Xin chào" class="w-full bg-slate-900/60 border border-slate-700 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-400 outline-none text-slate-100 placeholder-slate-500">
+              <button type="button" id="btn-ai-translate" onclick="translateWithGroq()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-lg text-xs font-semibold whitespace-nowrap shadow transition-colors flex items-center gap-1.5">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> AI Tự động điền
+              </button>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-1">Nhập tiếng Việt và bấm AI Tự động điền để hệ thống tự sinh chữ Hán, Pinyin, Anh, Đức và HSK.</p>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-slate-300 mb-1">Tiếng Trung (Hanzi) (*)</label>
+            <input type="text" id="zh" required placeholder="Ví dụ: 你好" class="w-full bg-slate-900/60 border border-slate-700 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-400 outline-none text-slate-100 placeholder-slate-500">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-300 mb-1">Phiên âm (Pinyin)</label>
+            <input type="text" id="pinyin" placeholder="Ví dụ: nǐ hǎo" class="w-full bg-slate-900/60 border border-slate-700 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-400 outline-none text-slate-100 placeholder-slate-500">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-300 mb-1">Tiếng Anh (*)</label>
+            <input type="text" id="en" required placeholder="Ví dụ: Hello" class="w-full bg-slate-900/60 border border-slate-700 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-400 outline-none text-slate-100 placeholder-slate-500">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-300 mb-1">Tiếng Đức (*)</label>
+            <input type="text" id="de" required placeholder="Ví dụ: Hallo" class="w-full bg-slate-900/60 border border-slate-700 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-400 outline-none text-slate-100 placeholder-slate-500">
+          </div>
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium text-slate-300 mb-1">Cấp độ HSK (*)</label>
+            <select id="hsk" class="w-full bg-slate-900/80 border border-slate-700 rounded-lg p-2.5 text-slate-100 focus:ring-2 focus:ring-indigo-400 outline-none">
+              <option value="HSK1">HSK 1</option>
+              <option value="HSK2">HSK 2</option>
+              <option value="HSK3">HSK 3</option>
+              <option value="HSK4">HSK 4</option>
+              <option value="HSK5">HSK 5</option>
+              <option value="HSK6">HSK 6</option>
+            </select>
+          </div>
+          <div class="md:col-span-2 pt-2">
+            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 rounded-lg transition-colors shadow">
+              <i class="fa-solid fa-save mr-1"></i> Lưu từ vựng vào bộ nhớ
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Công cụ quản lý kho từ -->
+      <div class="glass-panel p-6 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-4 border border-white/10 shadow-xl">
+        <div>
+          <h3 class="font-bold text-slate-100"><i class="fa-solid fa-database mr-2 text-indigo-400"></i>Kho lưu trữ dữ liệu</h3>
+          <p class="text-xs text-slate-300 mt-1">Xuất file JSON dự phòng hoặc khôi phục dữ liệu gốc.</p>
+        </div>
+        <div class="flex flex-wrap gap-2 w-full md:w-auto">
+          <button onclick="resetToDefaultData()" class="bg-amber-600/80 hover:bg-amber-600 text-white px-4 py-2 rounded-lg text-sm font-medium shadow transition-colors flex-1 md:flex-none">
+            <i class="fa-solid fa-rotate-left mr-1"></i> Khôi phục HSK Mẫu
+          </button>
+          <button onclick="exportJSON()" class="bg-indigo-600/80 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium shadow transition-colors flex-1 md:flex-none">
+            <i class="fa-solid fa-download mr-1"></i> Export JSON
+          </button>
+        </div>
+      </div>
+
+      <!-- Danh sách từ vựng -->
+      <div class="glass-panel p-6 rounded-2xl shadow-xl border border-white/10">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-lg font-bold text-slate-100">Danh sách từ đã lưu (<span id="vocab-count">0</span>)</h2>
+          <button onclick="clearAllData()" class="text-xs text-rose-400 hover:underline"><i class="fa-solid fa-trash mr-1"></i>Xóa tất cả</button>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="border-b border-slate-700/60 bg-slate-900/40 text-slate-300 text-xs uppercase font-semibold">
+                <th class="p-3">HSK</th>
+                <th class="p-3">Tiếng Trung</th>
+                <th class="p-3">Pinyin</th>
+                <th class="p-3">Tiếng Việt</th>
+                <th class="p-3">Tiếng Anh</th>
+                <th class="p-3">Tiếng Đức</th>
+                <th class="p-3 text-center">Thao tác</th>
+              </tr>
+            </thead>
+            <tbody id="vocab-table-body" class="divide-y divide-slate-800 text-sm"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ================= TAB 2: ÔN TẬP FLASHCARD ================= -->
+    <section id="tab-quiz" class="space-y-6 hidden">
+      
+      <div class="glass-panel p-4 rounded-2xl shadow-xl border border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
+        <span class="font-medium text-slate-200 text-sm">Lọc theo cấp độ HSK để ôn tập:</span>
+        <div class="flex flex-wrap gap-2" id="hsk-filters">
+          <button onclick="toggleHskFilter('HSK1')" class="hsk-filter-btn px-3 py-1 rounded-full border text-xs font-semibold bg-indigo-950/80 border-indigo-500/60 text-indigo-300" data-hsk="HSK1">HSK 1</button>
+          <button onclick="toggleHskFilter('HSK2')" class="hsk-filter-btn px-3 py-1 rounded-full border text-xs font-semibold bg-indigo-950/80 border-indigo-500/60 text-indigo-300" data-hsk="HSK2">HSK 2</button>
+          <button onclick="toggleHskFilter('HSK3')" class="hsk-filter-btn px-3 py-1 rounded-full border text-xs font-semibold bg-indigo-950/80 border-indigo-500/60 text-indigo-300" data-hsk="HSK3">HSK 3</button>
+          <button onclick="toggleHskFilter('HSK4')" class="hsk-filter-btn px-3 py-1 rounded-full border text-xs font-semibold bg-indigo-950/80 border-indigo-500/60 text-indigo-300" data-hsk="HSK4">HSK 4</button>
+          <button onclick="toggleHskFilter('HSK5')" class="hsk-filter-btn px-3 py-1 rounded-full border text-xs font-semibold bg-indigo-950/80 border-indigo-500/60 text-indigo-300" data-hsk="HSK5">HSK 5</button>
+          <button onclick="toggleHskFilter('HSK6')" class="hsk-filter-btn px-3 py-1 rounded-full border text-xs font-semibold bg-indigo-950/80 border-indigo-500/60 text-indigo-300" data-hsk="HSK6">HSK 6</button>
+        </div>
+        <button onclick="startQuiz()" class="bg-indigo-600 text-white px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors shadow">
+          <i class="fa-solid fa-rotate mr-1"></i> Đổi từ khác
+        </button>
+      </div>
+
+      <!-- Thẻ Flashcard -->
+      <div id="quiz-container" class="max-w-xl mx-auto glass-panel p-8 rounded-2xl shadow-2xl border border-white/10 text-center space-y-6">
+        
+        <div id="card-content" class="py-4 border-b border-slate-700/60">
+          <span id="card-hsk" class="inline-block px-3 py-1 bg-indigo-950/80 text-indigo-300 border border-indigo-800/50 rounded-full text-xs font-bold mb-3">HSK 1</span>
+          
+          <!-- Từ tiếng Trung kèm nút loa phát âm -->
+          <div class="flex items-center justify-center gap-3 mb-2">
+            <h3 id="card-zh" class="text-5xl font-extrabold text-slate-100 tracking-wide">你好</h3>
+            <button onclick="speakText(currentCard ? currentCard.zh : '', 'zh-CN')" class="w-10 h-10 rounded-full bg-indigo-900/60 hover:bg-indigo-800 text-indigo-300 flex items-center justify-center transition-colors shadow" title="Nghe phát âm tiếng Trung">
+              <i class="fa-solid fa-volume-high text-lg"></i>
+            </button>
+          </div>
+
+          <p id="card-pinyin-hint" class="text-slate-400 text-sm hidden">Phiên âm: <span id="card-pinyin" class="font-medium text-slate-200">nǐ hǎo</span></p>
+        </div>
+
+        <form id="quiz-form" onsubmit="checkAnswers(event)" class="space-y-4 text-left">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Tiếng Việt</label>
+            <input type="text" id="ans-vi" placeholder="Nhập đáp án tiếng Việt..." class="w-full bg-slate-900/60 border border-slate-700 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-400 outline-none text-sm text-slate-100 placeholder-slate-500">
+            <p id="feedback-vi" class="text-xs mt-1 hidden"></p>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Tiếng Anh</label>
+            <input type="text" id="ans-en" placeholder="Nhập đáp án tiếng Anh..." class="w-full bg-slate-900/60 border border-slate-700 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-400 outline-none text-sm text-slate-100 placeholder-slate-500">
+            <p id="feedback-en" class="text-xs mt-1 hidden"></p>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Tiếng Đức</label>
+            <input type="text" id="ans-de" placeholder="Nhập đáp án tiếng Đức..." class="w-full bg-slate-900/60 border border-slate-700 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-400 outline-none text-sm text-slate-100 placeholder-slate-500">
+            <p id="feedback-de" class="text-xs mt-1 hidden"></p>
+          </div>
+
+          <div class="pt-2 flex gap-3">
+            <button type="submit" id="btn-submit" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 rounded-lg transition-colors shadow">
+              Kiểm tra đáp án
+            </button>
+            <button type="button" id="btn-next" onclick="nextCard()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2.5 rounded-lg transition-colors shadow hidden">
+              Từ tiếp theo <i class="fa-solid fa-arrow-right ml-1"></i>
+            </button>
+          </div>
+        </form>
+
+        <!-- Hộp đáp án hiển thị đầy đủ các nút loa phát âm cho từng ngôn ngữ -->
+        <div id="solution-box" class="bg-slate-900/70 p-4 rounded-xl border border-slate-700 text-left space-y-3 text-sm hidden backdrop-blur-sm">
+          <p class="font-bold text-slate-200 border-b border-slate-700 pb-1">Đáp án chuẩn & Phát âm:</p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+            <div class="flex items-center justify-between bg-slate-800/80 p-2.5 rounded-lg border border-slate-700">
+              <span><b>Trung:</b> <span id="sol-zh" class="text-indigo-400 font-bold"></span></span>
+              <button onclick="speakText(currentCard ? currentCard.zh : '', 'zh-CN')" class="text-indigo-400 hover:text-indigo-300 p-1" title="Nghe tiếng Trung"><i class="fa-solid fa-volume-high text-base"></i></button>
+            </div>
+            <div class="flex items-center justify-between bg-slate-800/80 p-2.5 rounded-lg border border-slate-700">
+              <span><b>Pinyin:</b> <span id="sol-pinyin" class="text-slate-300"></span></span>
+            </div>
+            <div class="flex items-center justify-between bg-slate-800/80 p-2.5 rounded-lg border border-slate-700">
+              <span><b>Tiếng Việt:</b> <span id="sol-vi" class="font-medium text-slate-200"></span></span>
+              <button onclick="speakText(currentCard ? currentCard.vi : '', 'vi-VN')" class="text-indigo-400 hover:text-indigo-300 p-1" title="Nghe tiếng Việt"><i class="fa-solid fa-volume-high text-base"></i></button>
+            </div>
+            <div class="flex items-center justify-between bg-slate-800/80 p-2.5 rounded-lg border border-slate-700">
+              <span><b>Tiếng Anh:</b> <span id="sol-en" class="font-medium text-slate-200"></span></span>
+              <button onclick="speakText(currentCard ? currentCard.en : '', 'en-US')" class="text-indigo-400 hover:text-indigo-300 p-1" title="Nghe tiếng Anh"><i class="fa-solid fa-volume-high text-base"></i></button>
+            </div>
+            <div class="flex items-center justify-between bg-slate-800/80 p-2.5 rounded-lg border border-slate-700 md:col-span-2">
+              <span><b>Tiếng Đức:</b> <span id="sol-de" class="font-medium text-slate-200"></span></span>
+              <button onclick="speakText(currentCard ? currentCard.de : '', 'de-DE')" class="text-indigo-400 hover:text-indigo-300 p-1" title="Nghe tiếng Đức"><i class="fa-solid fa-volume-high text-base"></i></button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div id="no-quiz-msg" class="max-w-xl mx-auto glass-panel border border-amber-500/30 p-6 rounded-2xl text-center text-amber-200 hidden">
+        <i class="fa-solid fa-triangle-exclamation text-3xl mb-2 text-amber-400"></i>
+        <p class="font-bold">Không tìm thấy từ vựng phù hợp!</p>
+        <p class="text-xs mt-1 text-slate-300">Vui lòng chọn thêm các cấp độ HSK khác hoặc nhập thêm từ vựng mới ở Tab quản lý.</p>
+      </div>
+
+    </section>
+
+    <!-- ================= TAB 3: ĐỔI NỀN GIAO DIỆN ================= -->
+    <section id="tab-background" class="space-y-6 hidden">
+      <div class="max-w-xl mx-auto glass-panel p-8 rounded-2xl shadow-2xl border border-white/10 text-center space-y-6">
+        <div>
+          <h2 class="text-xl font-bold text-slate-100 mb-1"><i class="fa-solid fa-image text-indigo-400 mr-2"></i>Tùy Chỉnh Hình Nền Giao Diện</h2>
+          <p class="text-xs text-slate-300">Thay đổi ảnh nền sẽ hiển thị mờ ảo qua các khung giao diện.</p>
+        </div>
+
+        <div class="space-y-4">
+          <!-- Tải từ máy -->
+          <div class="p-4 border-2 border-dashed border-slate-700 rounded-xl hover:border-indigo-500 transition-colors bg-slate-900/40">
+            <input type="file" id="bg-file-input" accept="image/*" onchange="changeBackgroundFromFile(event)" class="hidden">
+            <button onclick="document.getElementById('bg-file-input').click()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 rounded-lg transition-colors shadow flex items-center justify-center gap-2">
+              <i class="fa-solid fa-upload"></i> Tải ảnh từ thiết bị của bạn
+            </button>
+            <p class="text-[11px] text-slate-400 mt-2">Hỗ trợ định dạng JPG, PNG, WEBP</p>
+          </div>
+
+          <div class="relative flex py-2 items-center">
+            <div class="flex-grow border-t border-slate-700"></div>
+            <span class="flex-shrink mx-4 text-xs text-slate-400 uppercase font-semibold text-slate-400">Hoặc chọn mẫu có sẵn</span>
+            <div class="flex-grow border-t border-slate-700"></div>
+          </div>
+
+          <!-- Mẫu có sẵn -->
+          <div class="grid grid-cols-2 gap-3">
+            <button onclick="setPresetBackground('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1920&q=80')" class="p-3 bg-slate-900/60 hover:bg-indigo-950/60 border border-slate-700 hover:border-indigo-500 rounded-xl text-xs font-semibold text-slate-200 transition-all flex flex-col items-center gap-2">
+              <div class="w-full h-16 rounded-lg bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=300&q=80')"></div>
+              <span>Biển xanh hoàng hôn</span>
+            </button>
+            <button onclick="setPresetBackground('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1920&q=80')" class="p-3 bg-slate-900/60 hover:bg-indigo-950/60 border border-slate-700 hover:border-indigo-500 rounded-xl text-xs font-semibold text-slate-200 transition-all flex flex-col items-center gap-2">
+              <div class="w-full h-16 rounded-lg bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=300&q=80')"></div>
+              <span>Núi non hùng vĩ</span>
+            </button>
+          </div>
+
+          <!-- Đặt lại mặc định -->
+          <div class="pt-2">
+            <button onclick="resetBackground()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium py-2.5 rounded-lg transition-colors text-sm border border-slate-700">
+              <i class="fa-solid fa-rotate-left mr-1"></i> Xóa ảnh nền (Về mặc định tối)
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="data.js"></script>
+</body>
+</html>
